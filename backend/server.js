@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./models");
 
+const Role = db.role;
 const app = express();
 
 var corsOptions = {
@@ -20,7 +21,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome home" });
 });
 
-app.get("/api/user/actors", (req, res) => {
+app.get("/api/actors", (req, res) => {
   res.json({ message: "Hello Actors" });
 });
 
@@ -35,14 +36,53 @@ db.mongoose
   })
   .then(() => {
     console.log("Connected to the database !");
+    initial();
   })
   .catch((err) => {
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
 
+// initial function
+function initial() {
+  Role.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      new Role({
+        name: "user"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'user' to roles collection");
+      });
+
+      new Role({
+        name: "moderator"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'moderator' to roles collection");
+      });
+
+      new Role({
+        name: "admin"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+}
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port localhost:${PORT}.`);
 });
+
